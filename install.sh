@@ -16,9 +16,9 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 mkdir "${script_dir}/build"
 cd "${script_dir}/build"
 git clone https://github.com/sickill/stderred.git
-cd "${script_dir}/build/stderred"
+cd "${script_dir}/build/${module_name}"
 make
 
-mkdir -p "${install_dir}/stderred"
+mkdir -p "${install_dir}/${module_name}"
 
-cp "${script_dir}/build/stderred/build/libtest_stderred.so" "${install_dir}/stderred/libtest_stderred.so"
+cp "${script_dir}/build/${module_name}/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
