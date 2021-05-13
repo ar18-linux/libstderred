@@ -21,4 +21,4 @@ make
 
 mkdir -p "${install_dir}/${module_name}"
 
-cp "${script_dir}/build/${module_name}/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
+cp "${script_dir}/build/stderred/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
