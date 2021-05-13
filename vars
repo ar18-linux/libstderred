@@ -1,4 +1,9 @@
+module_name="libstderred"
+
+if [ -z "${user_name+x}" ]; then
+  user_name="$(logname)"
+fi
+
 if [ -z "${install_dir+x}" ]; then
   install_dir="/opt/ar18"
 fi
-module_name="libstderred"
