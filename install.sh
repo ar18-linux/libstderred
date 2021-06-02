@@ -17,6 +17,9 @@ mkdir "${script_dir}/build"
 cd "${script_dir}/build"
 git clone https://github.com/sickill/stderred.git
 cd "${script_dir}/build/stderred"
+
+pacman -Sy cmake
+
 make
 
 mkdir -p "${install_dir}/${module_name}"
