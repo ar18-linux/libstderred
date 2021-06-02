@@ -18,7 +18,7 @@ cd "${script_dir}/build"
 git clone https://github.com/sickill/stderred.git
 cd "${script_dir}/build/stderred"
 
-pacman -Sy cmake
+pacman -Sy cmake --noconfirm
 
 make
 
