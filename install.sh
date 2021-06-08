@@ -13,6 +13,8 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 . "${script_dir}/vars"
 
+mkdir -p "${install_dir}"
+
 mkdir "${script_dir}/build"
 cd "${script_dir}/build"
 git clone https://github.com/sickill/stderred.git
