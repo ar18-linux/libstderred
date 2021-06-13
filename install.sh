@@ -45,7 +45,7 @@ pacman_install base-devel cmake
 
 make
 
-mkdir -p "${install_dir}/${module_name}"
+echo "${ar18_sudo_password}" | sudo -Sk mkdir -p "${install_dir}/${module_name}"
 
 echo "${ar18_sudo_password}" | sudo -Sk cp "${script_dir}/build/stderred/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
 
