@@ -1,9 +1,8 @@
 module_name="libstderred"
 
 if [ ! -v user_name ]; then
-  user_name="$(logname)"
+  user_name="$(whoami)"
 fi
-
 if [ ! -v install_dir ]; then
   install_dir="/opt/ar18"
 fi
