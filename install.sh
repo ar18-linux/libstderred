@@ -32,22 +32,29 @@ set -o pipefail
 set -eu
 #################################SCRIPT_START##################################
 
+ar18.script.import ar18.pacman.install
+ar18.script.import ar18.script.obtain_sudo_password
+ar18.script.import ar18.script.execute_with_sudo
+
 . "${script_dir}/vars"
-if [ ! -v ar18_helper_functions ]; then rm -rf "/tmp/helper_functions_$(whoami)"; cd /tmp; git clone https://github.com/ar18-linux/helper_functions.git; mv "/tmp/helper_functions" "/tmp/helper_functions_$(whoami)"; . "/tmp/helper_functions_$(whoami)/helper_functions/helper_functions.sh"; cd "${script_dir}"; export ar18_helper_functions=1; fi
-obtain_sudo_password
 
-mkdir "${script_dir}/build"
-cd "${script_dir}/build"
+ar18.script.obtain_sudo_password
+
+build_dir="/tmp"
+
+ar18.script.execute_with_sudo rm -rf "${build_dir}/stderrred"
+
+cd "${build_dir}"
 git clone https://github.com/sickill/stderred.git
-cd "${script_dir}/build/stderred"
+cd "${build_dir}/stderred"
 
-pacman_install base-devel cmake
+ar18.pacman.install base-devel cmake
 
 make
 
-echo "${ar18_sudo_password}" | sudo -Sk mkdir -p "${install_dir}/${module_name}"
+ar18.script.execute_with_sudo mkdir -p "${install_dir}/${module_name}"
 
-echo "${ar18_sudo_password}" | sudo -Sk cp "${script_dir}/build/stderred/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
+ar18.script.execute_with_sudo cp "${build_dir}/stderred/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
 
 ##################################SCRIPT_END###################################
 # Restore old shell values
