@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-06_08:05:30
+  # Script template version 2021-07-09_20:04:12
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
