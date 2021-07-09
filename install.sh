@@ -60,7 +60,7 @@ ar18.script.obtain_sudo_password
 
 build_dir="/tmp"
 
-ar18.script.execute_with_sudo rm -rf "${build_dir}/stderrred"
+ar18.script.execute_with_sudo rm -rf "${build_dir}/stderred"
 
 cd "${build_dir}"
 git clone https://github.com/sickill/stderred.git
