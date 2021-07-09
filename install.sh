@@ -3,15 +3,16 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-09_20:04:12
+  # Script template version 2021-07-09_20:12:35
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
   # Set shell options for this script
   set -o pipefail
-  set -eux
+  set -ex
   # Make sure some modification to LD_PRELOAD will not alter the result or outcome in any way
   LD_PRELOAD_old="${LD_PRELOAD}"
+  set -u
   LD_PRELOAD=
   # Determine the full path of the directory this script is in
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
