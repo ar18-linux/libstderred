@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_13:35:39
+  # Script template version 2021-07-10_13:50:26
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
@@ -21,14 +21,20 @@
     declare -A -g ar18_old_script_dir_map
   fi
   set +u
-  ar18_old_script_dir_map["$(readlink "${BASH_SOURCE[0]}")"]="${script_dir}"
+  if [ ! -v script_dir ]; then
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+  fi
+  ar18_old_script_dir_map["$(realpath "${BASH_SOURCE[0]}")"]="${script_dir}"
   set -u
   # Save old script_path variable
   if [ ! -v ar18_old_script_path_map ]; then
     declare -A -g ar18_old_script_path_map
   fi
   set +u
-  ar18_old_script_path_map["$(readlink "${BASH_SOURCE[0]}")"]="${script_path}"
+  if [ ! -v script_path ]; then
+    script_path="${script_dir}/$(basename "${0}")"
+  fi
+  ar18_old_script_path_map["$(realpath "${BASH_SOURCE[0]}")"]="${script_path}"
   set -u
   # Determine the full path of the directory this script is in
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
@@ -100,8 +106,8 @@ function clean_up(){
 {
   exit_script_path="${script_path}"
   # Restore script_dir and script_path
-  script_dir="${ar18_old_script_dir_map["$(readlink "${BASH_SOURCE[0]}")"]}"
-  script_path="${ar18_old_script_path_map["$(readlink "${BASH_SOURCE[0]}")"]}"
+  script_dir="${ar18_old_script_dir_map["$(realpath "${BASH_SOURCE[0]}")"]}"
+  script_path="${ar18_old_script_path_map["$(realpath "${BASH_SOURCE[0]}")"]}"
   # Restore LD_PRELOAD
   LD_PRELOAD="${LD_PRELOAD_old}"
   # Restore PWD
