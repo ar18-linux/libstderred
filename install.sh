@@ -3,14 +3,16 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-09_20:12:35
+  # Script template version 2021-07-10_11:24:30
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
+  set +x
   # Set shell options for this script
   set -o pipefail
-  set -ex
+  set -e
   # Make sure some modification to LD_PRELOAD will not alter the result or outcome in any way
+  set +u
   LD_PRELOAD_old="${LD_PRELOAD}"
   set -u
   LD_PRELOAD=
