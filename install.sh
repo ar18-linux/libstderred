@@ -3,19 +3,26 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_13:50:26
+  # Script template version 2021-07-10_14:04:55
   # Get old shell option values to restore later
+  if [ ! -v ar18_old_shopt_map ]; then
+    declare -A -g ar18_old_shopt_map
+  fi
   shopt -s inherit_errexit
-  IFS=$'\n' shell_options=($(shopt -op))
+  ar18_old_shopt_map["$(realpath "${BASH_SOURCE[0]}")"]="$(shopt -op)"
   set +x
   # Set shell options for this script
   set -o pipefail
   set -e
   # Make sure some modification to LD_PRELOAD will not alter the result or outcome in any way
-  set +u
-  LD_PRELOAD_old="${LD_PRELOAD}"
-  set -u
-  LD_PRELOAD=
+  if [ ! -v ar18_old_ld_preload_map ]; then
+    declare -A -g ar18_old_ld_preload_map
+  fi
+  if [ ! -v LD_PRELOAD ]; then
+    LD_PRELOAD=""
+  fi
+  ar18_old_ld_preload_map["$(realpath "${BASH_SOURCE[0]}")"]="${LD_PRELOAD}"
+  LD_PRELOAD=""
   # Save old script_dir variable
   if [ ! -v ar18_old_script_dir_map ]; then
     declare -A -g ar18_old_script_dir_map
@@ -59,7 +66,7 @@
   if [ ! -v ar18_pwd_map ]; then
     declare -A -g ar18_pwd_map
   fi
-  ar18_pwd_map["${script_path}"]="${PWD}"
+  ar18_pwd_map["$(realpath "${BASH_SOURCE[0]}")"]="${PWD}"
   if [ ! -v ar18_parent_process ]; then
     export ar18_parent_process="$$"
   fi
@@ -109,10 +116,11 @@ function clean_up(){
   script_dir="${ar18_old_script_dir_map["$(realpath "${BASH_SOURCE[0]}")"]}"
   script_path="${ar18_old_script_path_map["$(realpath "${BASH_SOURCE[0]}")"]}"
   # Restore LD_PRELOAD
-  LD_PRELOAD="${LD_PRELOAD_old}"
+  LD_PRELOAD=ar18_old_ld_preload_map["$(realpath "${BASH_SOURCE[0]}")"]
   # Restore PWD
-  cd "${ar18_pwd_map["${script_path}"]}"
+  cd "${ar18_pwd_map["$(realpath "${BASH_SOURCE[0]}")"]}"
   # Restore old shell values
+  IFS=$'\n' shell_options=(echo ${ar18_old_shopt_map["$(realpath "${BASH_SOURCE[0]}")"]})
   for option in "${shell_options[@]}"; do
     eval "${option}"
   done
