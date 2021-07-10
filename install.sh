@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_19:44:36
+  # Script template version 2021-07-10_19:49:50
   script_dir_temp="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path_temp="${script_dir_temp}/$(basename "${0}")"
   # Get old shell option values to restore later
@@ -74,11 +74,11 @@
     export ar18_parent_process="$$"
   fi
   # Get import module
-  if [ ! -v ar18.script.import ]; then
+  if [ ! -v ar18_script_import ]; then
     mkdir -p "/tmp/${ar18_parent_process}"
     cd "/tmp/${ar18_parent_process}"
     curl -O https://raw.githubusercontent.com/ar18-linux/ar18_lib_bash/master/ar18_lib_bash/script/import.sh > /dev/null 2>&1 && . "/tmp/${ar18_parent_process}/import.sh"
-    export ar18.script.import
+    export ar18_script_import
     cd "${ar18_pwd_map["${script_path_temp}"]}"
   fi
 }
