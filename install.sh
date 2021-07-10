@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_11:32:20
+  # Script template version 2021-07-10_11:40:41
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
@@ -104,3 +104,5 @@ function clean_up(){
     exit "${ar18_exit_map["${script_path}"]}"
   fi
 }
+
+trap clean_up SIGINT
