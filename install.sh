@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_14:41:36
+  # Script template version 2021-07-10_19:18:28
   script_dir_temp="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path_temp="${script_dir_temp}/$(basename "${0}")"
   # Get old shell option values to restore later
@@ -70,6 +70,7 @@
   fi
   ar18_pwd_map["${script_path_temp}"]="${PWD}"
   if [ ! -v ar18_parent_process ]; then
+    unset import_map
     export ar18_parent_process="$$"
   fi
   # Get import module
