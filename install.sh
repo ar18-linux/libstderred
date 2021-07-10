@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_19:49:50
+  # Script template version 2021-07-11_00:01:52
   script_dir_temp="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path_temp="${script_dir_temp}/$(basename "${0}")"
   # Get old shell option values to restore later
@@ -14,8 +14,30 @@
   ar18_old_shopt_map["${script_path_temp}"]="$(shopt -op)"
   set +x
   # Set shell options for this script
-  set -o pipefail
   set -e
+  set -E
+  set -o pipefail
+  set -o functrace
+}
+
+function clean_up() {
+  echo "cleanup ${ar18_parent_process}"
+  rm -rf "/tmp/${ar18_parent_process}"
+}
+trap clean_up SIGINT SIGHUP SIGQUIT SIGTERM
+
+function err_report() {
+  local path="${1}"
+  local lineno="${2}"
+  local msg="${3}"
+  clean_up
+  RED="\e[1m\e[31m"
+  NC="\e[0m" # No Color
+  printf "${RED}ERROR ${path}:${lineno}\n${msg}${NC}\n"
+}
+trap 'err_report "${BASH_SOURCE[0]}" ${LINENO} "${BASH_COMMAND}"' ERR
+
+{
   # Make sure some modification to LD_PRELOAD will not alter the result or outcome in any way
   if [ ! -v ar18_old_ld_preload_map ]; then
     declare -A -g ar18_old_ld_preload_map
@@ -77,7 +99,7 @@
   if [ ! -v ar18_script_import ]; then
     mkdir -p "/tmp/${ar18_parent_process}"
     cd "/tmp/${ar18_parent_process}"
-    curl -O https://raw.githubusercontent.com/ar18-linux/ar18_lib_bash/master/ar18_lib_bash/script/import.sh > /dev/null 2>&1 && . "/tmp/${ar18_parent_process}/import.sh"
+    curl -O https://raw.githubusercontent.com/ar18-linux/ar18_lib_bash/master/ar18_lib_bash/script/import.sh >/dev/null 2>&1 && . "/tmp/${ar18_parent_process}/import.sh"
     export ar18_script_import
     cd "${ar18_pwd_map["${script_path_temp}"]}"
   fi
@@ -110,9 +132,6 @@ ar18.script.execute_with_sudo cp "${build_dir}/stderred/build/libtest_stderred.s
 
 ##################################SCRIPT_END###################################
 set +x
-function clean_up(){
-  rm -rf "/tmp/${ar18_parent_process}"
-}
 # Restore environment
 {
   # Restore PWD
@@ -140,5 +159,3 @@ function clean_up(){
     exit "${ar18_exit_map["${exit_script_path}"]}"
   fi
 }
-
-trap clean_up SIGINT
