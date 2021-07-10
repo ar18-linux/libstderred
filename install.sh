@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-10_11:40:41
+  # Script template version 2021-07-10_13:35:39
   # Get old shell option values to restore later
   shopt -s inherit_errexit
   IFS=$'\n' shell_options=($(shopt -op))
@@ -16,6 +16,20 @@
   LD_PRELOAD_old="${LD_PRELOAD}"
   set -u
   LD_PRELOAD=
+  # Save old script_dir variable
+  if [ ! -v ar18_old_script_dir_map ]; then
+    declare -A -g ar18_old_script_dir_map
+  fi
+  set +u
+  ar18_old_script_dir_map["$(readlink "${BASH_SOURCE[0]}")"]="${script_dir}"
+  set -u
+  # Save old script_path variable
+  if [ ! -v ar18_old_script_path_map ]; then
+    declare -A -g ar18_old_script_path_map
+  fi
+  set +u
+  ar18_old_script_path_map["$(readlink "${BASH_SOURCE[0]}")"]="${script_path}"
+  set -u
   # Determine the full path of the directory this script is in
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path="${script_dir}/$(basename "${0}")"
@@ -78,9 +92,16 @@ ar18.script.execute_with_sudo mkdir -p "${install_dir}/${module_name}"
 ar18.script.execute_with_sudo cp "${build_dir}/stderred/build/libtest_stderred.so" "${install_dir}/${module_name}/libstderred.so"
 
 ##################################SCRIPT_END###################################
+set +x
+function clean_up(){
+  rm -rf "/tmp/${ar18_parent_process}"
+}
 # Restore environment
 {
-  set +x
+  exit_script_path="${script_path}"
+  # Restore script_dir and script_path
+  script_dir="${ar18_old_script_dir_map["$(readlink "${BASH_SOURCE[0]}")"]}"
+  script_path="${ar18_old_script_path_map["$(readlink "${BASH_SOURCE[0]}")"]}"
   # Restore LD_PRELOAD
   LD_PRELOAD="${LD_PRELOAD_old}"
   # Restore PWD
@@ -90,18 +111,15 @@ ar18.script.execute_with_sudo cp "${build_dir}/stderred/build/libtest_stderred.s
     eval "${option}"
   done
 }
-function clean_up(){
-  rm -rf "/tmp/${ar18_parent_process}"
-}
 # Return or exit depending on whether the script was sourced or not
 {
-  if [ "${ar18_sourced_map["${script_path}"]}" = "1" ]; then
-    return "${ar18_exit_map["${script_path}"]}"
+  if [ "${ar18_sourced_map["${exit_script_path}"]}" = "1" ]; then
+    return "${ar18_exit_map["${exit_script_path}"]}"
   else
     if [ "${ar18_parent_process}" = "$$" ]; then
       clean_up
     fi
-    exit "${ar18_exit_map["${script_path}"]}"
+    exit "${ar18_exit_map["${exit_script_path}"]}"
   fi
 }
 
