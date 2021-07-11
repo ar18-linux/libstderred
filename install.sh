@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-11_15:53:09
+  # Script template version 2021-07-11_19:04:49
   script_dir_temp="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path_temp="${script_dir_temp}/$(basename "${BASH_SOURCE[0]}")"
   # Get old shell option values to restore later
@@ -18,6 +18,18 @@
   set -E
   set -o pipefail
   set -o functrace
+}
+
+function stacktrace(){
+  echo "STACKTRACE"
+  local size
+  size="${#BASH_SOURCE[@]}"
+  local idx
+  idx="$((size - 2))"
+  while [ "${idx}" -ge "1" ]; do
+    caller "${idx}"
+    ((idx--))
+  done
 }
 
 function restore_env(){
@@ -71,9 +83,9 @@ function err_report() {
   local path="${1}"
   local lineno="${2}"
   local msg="${3}"
-  clean_up
   RED="\e[1m\e[31m"
   NC="\e[0m" # No Color
+  stacktrace
   printf "${RED}ERROR ${path}:${lineno}\n${msg}${NC}\n"
 }
 trap 'err_report "${BASH_SOURCE[0]}" ${LINENO} "${BASH_COMMAND}"' ERR
