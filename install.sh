@@ -3,7 +3,7 @@
 
 # Prepare script environment
 {
-  # Script template version 2021-07-11_15:24:34
+  # Script template version 2021-07-11_15:53:09
   script_dir_temp="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
   script_path_temp="${script_dir_temp}/$(basename "${BASH_SOURCE[0]}")"
   # Get old shell option values to restore later
@@ -21,11 +21,11 @@
 }
 
 function restore_env(){
-  echo restore_env
-  # Restore PWD
-  cd "${ar18_pwd_map["${script_path}"]}"
+  local exit_script_path
   exit_script_path="${script_path}"
-  # Restore ar18_on_sourced_return
+  # Restore PWD
+  cd "${ar18_pwd_map["${exit_script_path}"]}"
+  # Restore ar18_extra_cleanup
   eval "${ar18_sourced_return_map["${exit_script_path}"]}"
   # Restore script_dir and script_path
   script_dir="${ar18_old_script_dir_map["${exit_script_path}"]}"
@@ -60,8 +60,10 @@ function ar18_return_or_exit(){
 }
 
 function clean_up() {
-  echo "cleanup ${ar18_parent_process}"
   rm -rf "/tmp/${ar18_parent_process}"
+  if type ar18_extra_cleanup > /dev/null 2>&1; then
+    ar18_extra_cleanup
+  fi
 }
 trap clean_up SIGINT SIGHUP SIGQUIT SIGTERM EXIT
 
@@ -116,20 +118,20 @@ trap 'err_report "${BASH_SOURCE[0]}" ${LINENO} "${BASH_COMMAND}"' ERR
     declare -A -g ar18_sourced_map
   fi
   if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
-    ar18_sourced_map["${script_path_temp}"]=1
+    ar18_sourced_map["${script_path}"]=1
   else
-    ar18_sourced_map["${script_path_temp}"]=0
+    ar18_sourced_map["${script_path}"]=0
   fi
   # Initialise exit code
   if [ ! -v ar18_exit_map ]; then
     declare -A -g ar18_exit_map
   fi
-  ar18_exit_map["${script_path_temp}"]=0
+  ar18_exit_map["${script_path}"]=0
   # Save PWD
   if [ ! -v ar18_pwd_map ]; then
     declare -A -g ar18_pwd_map
   fi
-  ar18_pwd_map["${script_path_temp}"]="${PWD}"
+  ar18_pwd_map["${script_path}"]="${PWD}"
   if [ ! -v ar18_parent_process ]; then
     unset import_map
     export ar18_parent_process="$$"
@@ -139,18 +141,18 @@ trap 'err_report "${BASH_SOURCE[0]}" ${LINENO} "${BASH_COMMAND}"' ERR
   if [ ! -v ar18_sourced_return_map ]; then
     declare -A -g ar18_sourced_return_map
   fi
-  if type ar18_on_sourced_return > /dev/null 2>&1 ; then
-    ar18_on_sourced_return_temp="$(type ar18_on_sourced_return)"
-    ar18_on_sourced_return_temp="$(echo "${ar18_on_sourced_return_temp}" | sed -E "s/^.+is a function\s*//")"
+  if type ar18_extra_cleanup > /dev/null 2>&1 ; then
+    ar18_extra_cleanup_temp="$(type ar18_extra_cleanup)"
+    ar18_extra_cleanup_temp="$(echo "${ar18_extra_cleanup_temp}" | sed -E "s/^.+is a function\s*//")"
   else
-    ar18_on_sourced_return_temp=""
+    ar18_extra_cleanup_temp=""
   fi
-  ar18_sourced_return_map["${script_path_temp}"]="${ar18_on_sourced_return_temp}"
+  ar18_sourced_return_map["${script_path}"]="${ar18_extra_cleanup_temp}"
   function local_return_trap(){
-    if [ "${ar18_sourced_map["${script_path_temp}"]}" = "1" ] \
+    if [ "${ar18_sourced_map["${script_path}"]}" = "1" ] \
     && [ "${FUNCNAME[1]}" = "ar18_return_or_exit" ]; then
-      if type ar18_on_sourced_return > /dev/null 2>&1; then
-        ar18_on_sourced_return
+      if type ar18_extra_cleanup > /dev/null 2>&1; then
+        ar18_extra_cleanup
       fi
       restore_env
     fi
@@ -159,10 +161,11 @@ trap 'err_report "${BASH_SOURCE[0]}" ${LINENO} "${BASH_COMMAND}"' ERR
   # Get import module
   if [ ! -v ar18_script_import ]; then
     mkdir -p "/tmp/${ar18_parent_process}"
+    old_cwd="${PWD}"
     cd "/tmp/${ar18_parent_process}"
     curl -O https://raw.githubusercontent.com/ar18-linux/ar18_lib_bash/master/ar18_lib_bash/script/import.sh >/dev/null 2>&1 && . "/tmp/${ar18_parent_process}/import.sh"
     export ar18_script_import
-    cd "${ar18_pwd_map["${script_path_temp}"]}"
+    cd "${old_cwd}"
   fi
 }
 #################################SCRIPT_START##################################
